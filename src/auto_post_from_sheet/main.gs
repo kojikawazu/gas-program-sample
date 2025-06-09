@@ -38,7 +38,24 @@ function autoPostFromSheet() {
   // ランダム値を取得
   let rand = Math.random();
   rand = Math.floor(rand * ROW_COUNT) + 1;
-  Logger.log("rand: " + rand);
+
+  // 現在の日付時刻の取得
+  const TODAY = new Date();
+  const year = TODAY.getFullYear();
+  const month = String(TODAY.getMonth() + 1).padStart(2, '0');
+  const day = String(TODAY.getDate()).padStart(2, '0');
+  const hour = String(TODAY.getHours()).padStart(2, '0');
+  const minute = String(TODAY.getMinutes()).padStart(2, '0');
+  const second = String(TODAY.getSeconds()).padStart(2, '0');
+  const formatted = `${year}/${month}/${day} ${hour}:${minute}:${second}`;
+
+  // 指定時刻チェック
+  const TARGET_HOUR = [6, 8, 10, 12, 14, 16, 18, 20, 22, 23, 0];
+  if (!TARGET_HOUR.includes(TODAY.getHours())) {
+    // 現在時刻が指定時刻でない場合、スキップ
+    Logger.log("Scheduled execution skipped. [" + formatted + "]");
+    return;
+  }
 
   for (let i = 0; i < RANGE_DATA.length; i++) {
     // #
@@ -46,14 +63,12 @@ function autoPostFromSheet() {
     // postData
     const postData = RANGE_DATA[i][1];
 
-    Logger.log("data A: " + postNumber);
-    Logger.log("data B: " + postData);
-
     if (postNumber != rand) {
       continue;
     }
 
-    sendTweet(postData);
+    const message = `${formatted}\n${postData}`;
+    sendTweet(message);
   }
 }
 
